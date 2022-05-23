@@ -1,10 +1,12 @@
 import json
+import random as rd
 from turtle import width
 import pygame as pg
 from pygame.locals import *
 # from map.map import *
 from models.Setting import Setting
-from windows.Window1 import root
+from windows.Window1 import start
+
 import numpy as np
 CELL_HIGHT = 101
 CELL_WIDTH = 101
@@ -146,7 +148,7 @@ def checkWin(map1: np.array, dk, luot, row, col):
         col_tmp -= 1
         if row_tmp > r - 1 or col_tmp < 0:
             break
-
+    return False
 
 
 class App:
@@ -159,6 +161,8 @@ class App:
         self.hang = hang
         self.cot = cot
         self.luot = 1
+        self.win = False
+        self.who = None
         m = []
         
         for i in range(hang):
@@ -182,43 +186,56 @@ class App:
             self._running = False
         # sự kiện click chuột
         if event.type == MOUSEBUTTONDOWN:
-            x, y = pg.mouse.get_pos()
+            if self.win != True:
+                x, y = pg.mouse.get_pos()
 
-            # get column of mouse click (1-3)
-            col = int(x / CELL_WIDTH)
-           
-
-            # get row of mouse click (1-3)
-            row = int(y / CELL_HIGHT)
-
+                # get column of mouse click (1-3)
+                col = int(x / CELL_WIDTH)
             
 
-            posx = col * CELL_WIDTH + 1
-            posy = row * CELL_HIGHT + 1
-            # print("{} {}".format(col, row))
-            if self.luot == 1 and self.map[row, col] == None:
-                self._screen.blit(x_img, (posx, posy))
-                self.map[row, col] = self.luot
-                win = checkWin(self.map, self.dk, self.luot, row, col)
-                if win:
-                    self._screen.blit(x_win, (0, 0))
-                self.luot = 0
-            if self.luot == 0 and self.map[row, col] == None:
-                self._screen.blit(o_img, (posx, posy))
-                self.map[row, col] = self.luot
-                win = checkWin(self.map, self.dk, self.luot, row, col)
-                if win:
-                    self._screen.blit(o_win, (0, 0))
-                self.luot = 1
-            # r, c = self.map.shape
-            ss = 0
-            try:
-                ss = np.sum(self.map)
-            except TypeError as e:
-                pass
-            if ss > 0:
-                self._screen.blit(hoa, (0, 0))
-            # print(self.map)
+                # get row of mouse click (1-3)
+                row = int(y / CELL_HIGHT)
+
+                
+
+                posx = col * CELL_WIDTH + 1
+                posy = row * CELL_HIGHT + 1
+                # print("{} {}".format(col, row))
+                if self.luot == 1 and self.map[row, col] == None and self.win != True:
+                    self._screen.blit(x_img, (posx, posy))
+                    self.map[row, col] = self.luot
+                    self.win = checkWin(self.map, self.dk, self.luot, row, col)
+                    if self.win:
+                        self._screen.blit(x_win, (0, 0))
+                        self.who = "x"
+                        self._running = False
+                    self.luot = 0
+                # if self.luot == 0 and self.map[row, col] == None:
+                if self.luot == 0 and self.win != True:
+                    while True:
+                        row = rd.randint(0, self.hang - 1)
+                        cot = rd.randint(0, self.cot - 1)
+                        if self.map[row, col] == None:
+                            break
+                    posx = col * CELL_WIDTH + 1
+                    posy = row * CELL_HIGHT + 1
+                    self._screen.blit(o_img, (posx, posy))
+                    self.map[row, col] = self.luot
+                    self.win = checkWin(self.map, self.dk, self.luot, row, col)
+                    if self.win:
+                        self._screen.blit(o_win, (0, 0))
+                        self.who = "o"
+                        self._running = False
+                    self.luot = 1
+                # r, c = self.map.shape
+                ss = 0
+                try:
+                    ss = np.sum(self.map)
+                except TypeError as e:
+                    pass
+                if ss > 0:
+                    self._screen.blit(hoa, (0, 0))
+                # print(self.map)
             pg.display.update()
 
     # lặp màn hình
@@ -252,15 +269,25 @@ class App:
             self.on_render()
         # dọn dẹp
         self.on_cleanup()
+        return self.who
 
 
 def main():
-    root.mainloop()
-    set_str = json.loads(root.getvar("setting"))
-    setting = Setting(int(set_str["hang"]), int(set_str["cot"]), int(set_str["dk"]))
+    while True:
+        root = start()
+        set_str = json.loads(root.getvar("setting"))
+        setting = Setting(int(set_str["hang"]), int(set_str["cot"]), int(set_str["dk"]))
 
-    dkk = setting.dk
-    theApp = App(setting.hang, setting.cot, setting.dk)
-    theApp.on_execute()
+        # dkk = setting.dk
+        theApp = App(setting.hang, setting.cot, setting.dk)
+        who = theApp.on_execute()
+        
+        from windows.Window2 import end
+        # data["who"] = who
+        r2 = end(who)
+        choi_lai = r2.getvar("choi_lai")
+        if choi_lai != "y":
+            break
+
 if __name__ == "__main__":
     main()
