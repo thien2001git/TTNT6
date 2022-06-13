@@ -1,3 +1,4 @@
+# from audioop import minmax
 import json
 import random as rd
 from turtle import width
@@ -6,14 +7,16 @@ from pygame.locals import *
 # from map.map import *
 from models.Setting import Setting
 from windows.Window1 import start
+from minimax import minimax
 
 import numpy as np
-CELL_HIGHT = 101
-CELL_WIDTH = 101
+
+CELL_HIGHT = 21
+CELL_WIDTH = 21
 x_img = pg.image.load("img/x1.png")
-x_img = pg.transform.scale(x_img, (99, 99))
+x_img = pg.transform.scale(x_img, (19, 19))
 o_img = pg.image.load("img/o1.png")
-o_img = pg.transform.scale(o_img, (99, 99))
+o_img = pg.transform.scale(o_img, (19, 19))
 
 x_win = pg.image.load("img/x_win1.png")
 o_win = pg.image.load("img/o_win1.png")
@@ -22,6 +25,7 @@ hoa = pg.image.load("img/hoa.png")
 dkk = 0
 white = (255, 255, 255)
 line_color = (0, 0, 0)
+
 
 def game_initiating_window(screen, width, height, cols, rows):
     # displaying over the screen
@@ -34,14 +38,16 @@ def game_initiating_window(screen, width, height, cols, rows):
 
     # drawing vertical lines
     for i in range(cols - 1):
-        pg.draw.line(screen, line_color, (CELL_WIDTH * (i + 1), 0), (CELL_WIDTH * (i + 1), height), 1)
-    
+        pg.draw.line(screen, line_color, (CELL_WIDTH * (i + 1), 0),
+                     (CELL_WIDTH * (i + 1), height), 1)
 
     # drawing horizontal lines
     for i in range(rows - 1):
-        pg.draw.line(screen, line_color, (0, CELL_HIGHT * (i + 1)), (width, CELL_HIGHT * (i + 1)), 1)
-    
+        pg.draw.line(screen, line_color, (0, CELL_HIGHT * (i + 1)),
+                     (width, CELL_HIGHT * (i + 1)), 1)
+
     pg.display.update()
+
 
 def myfunction(x):
     cn = 0
@@ -52,103 +58,208 @@ def myfunction(x):
             cn = 0
         if cn == dkk:
             return "o"
-    
+
     cn = 0
     for i in x:
-        
+
         if i == 1:
             cn += 1
         else:
             cn = 0
         if cn == dkk:
             return "x"
-    
-def miniMax(map1:np.array, luot):
-    pass
 
-def checkWin(map1: np.array, dk, luot, row, col):
 
-    cn = 0
-   
-    r, c = map1.shape
-    # print(r)
-    # print(c)
-    # np.apply_along_axis(myfunction, axis=1, arr=map1)
-    for i in range(c):
-        if map1[row, i] == luot:
-            cn += 1
-            if cn == dk:
-                # print("ok")
-                return True
-        else:
-            cn = 0
-    
-    cn = 0
-    for i in range(r):
-        # print(map1[i, col])
-        if map1[i, col] == luot:
-            cn += 1
-            if cn == dk:
-                # print("ok")
-                return True
-        else:
-            cn = 0
-    col_tmp = 0
-    row_tmp = 0
-    if row <= col:
-        col_tmp = col - row
-        row_tmp = 0
-        # print("{} {}".format(0, col - row))
-    elif col < row:
-        row_tmp = row - col
-        col_tmp = 0
-        # print("{} {}".format(row - col, 0))
-    cn = 0
-    # print("{} {}".format(row_tmp, col_tmp))
-    while True:
-        if map1[row_tmp, col_tmp] == luot:
-            cn += 1
-            if cn == dk:
-                # print("ok")
-                return True
-        else:
-            cn = 0
-        row_tmp += 1
-        col_tmp += 1
-        if row_tmp >= r or col_tmp >= c:
-            break
-    
-    col_tmp = col
-    row_tmp = row
-    # print("{} {}".format(row_tmp, col_tmp))
-    while True:
-        col_tmp += 1
-        row_tmp -= 1
-        if row_tmp < 0:
-            col_tmp -= 1
-            row_tmp = 0
-            break
-        if col_tmp > c - 1:
-            col_tmp = c - 1
-            row_tmp += 1
-            break
-    # print("{} {}".format(row_tmp, col_tmp))
- 
-    
-    cn = 0
-    while True:
-        if map1[row_tmp, col_tmp] == luot:
-            cn += 1
-            if cn == dk:
-                print("ok")
-                return True
-        else:
-            cn = 0
-        row_tmp += 1
-        col_tmp -= 1
-        if row_tmp > r - 1 or col_tmp < 0:
-            break
+def rr(x):
+    return "".join(x)
+
+
+def checkWinText(x, z):
+    for i in x:
+        if z in i:
+            print("ok")
+            return True
     return False
+
+
+def checkWin(map1: np.array, dk, luot):
+    r, c = map1.shape
+    x = np.apply_along_axis(rr, axis=1, arr=map1)
+
+    ll = []
+    if luot == 1:
+        for i in range(5):
+            ll.append("x")
+    else:
+        for i in range(5):
+            ll.append("o")
+
+    z = "".join(ll)
+
+    if checkWinText(x, z):
+        return True
+
+    x = np.apply_along_axis(rr, axis=0, arr=map1)
+
+    if checkWinText(x, z):
+        return True
+
+    x = list()
+    for i in range(20):
+        s1 = []
+        s2 = []
+        u = 0
+        for j in range(i, 20):
+            if i == 0:
+                s1.append(map1[j, j])
+            else:
+                s1.append(map1[u, j])
+                s2.append(map1[j, 0])
+                u += 1
+        x.append("".join(s1))
+        x.append("".join(s2))
+
+    if checkWinText(x, z):
+        return True
+
+    x = list()
+    u = 0
+    v = 0
+    d = 0
+    while True:
+        s1 = []
+
+        i = u
+        j = v
+        while True:
+            s1.append(map1[i, j])
+            i += 1
+            j -= 1
+            if i >= 20 or j <= -1:
+                break
+
+        x.append("".join(s1))
+        if v != 19:
+            v += 1
+        if v == 19:
+            d += 1
+            if d > 1:
+                u += 1
+        if u >= 20:
+            break
+    if checkWinText(x, z):
+        return True
+
+
+def isValid(x, y):
+    if x < 0 or y < 0 or x >= 20 or y >= 20:
+        return False
+    else:
+        return True
+
+
+def maximum(a, b):
+    if a >= b:
+        return a
+    else:
+        return b
+
+
+td = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]
+strdk = {
+    "xxxx_": 100,
+    "xxx__": 95,
+    "_xxx_": 95,
+    "__xxx": 90,
+    "xxxxo": 100,
+    "xxxo_": 90,
+    "xx___": 60,
+    "_xx__": 60,
+    "__xx_": 60,
+    "__xxo": 50,
+    "_xxo_": 50,
+    "xxo__": 50,
+
+    "_": 0,
+    "__": 0,
+    "___": 0,
+    "____": 0,
+    "_____": 0,
+    "x____": 10,
+    "_x___": 10,
+    "__x__": 10,
+    "___x_": 10,
+    "____x": 10,
+}
+strdk1 = {
+    "xxx": 9,
+}
+
+
+def tinhDiem(map1, luot):
+    n = 20 * 20
+    mm = np.array([0] * n)
+    mm = np.reshape(mm, (20, 20))
+    l = ""
+    op = ""
+    if luot == 1:
+        l = "x"
+        op = "o"
+    else:
+        l = "o"
+        op = "x"
+
+    for i in range(20):
+        for j in range(20):
+            # diem = 0
+            if map1[i, j] == l:
+                mm[i, j] = -1
+            if map1[i, j] == op:
+                mm[i, j] = -2
+
+            if map1[i, j] == "_":
+
+                for p in td:
+                    u = i
+                    v = j
+                    ss = ""
+                    for k in range(5):
+                        u += p[0]
+                        v += p[1]
+                        if isValid(u, v):
+                            ss = "".join((ss, map1[u, v]))
+                        else:
+                            break
+                    # if "xxx" not in strdk1.keys():
+                    # ss = ss.replace("_", " ").strip()
+                    if ss in strdk.keys():
+                        mm[i, j] += strdk[ss]
+
+
+
+    mx = 0
+    ind = []
+
+    for i in range(20):
+        for j in range(20):
+            if mm[i, j] == "x":
+                mm[i, j] = "0"
+            if mm[i, j] == "o":
+                mm[i, j] = "0"
+            # mm[i, j] = "0"
+
+    for i in range(20):
+        for j in range(20):
+            if mx < mm[i, j]:
+                mx = mm[i, j]
+                ind.clear()
+            if mx == mm[i, j]:
+                ind.append((i, j))
+
+    print("cham")
+    print(mm)
+    rd.shuffle(ind)
+    return ind[0]
 
 
 class App:
@@ -156,7 +267,8 @@ class App:
     def __init__(self, hang: int, cot: int, dk: int):
         self._running = True  # chạy
         self._screen = None
-        self.size = self.weight, self.height = cot * CELL_WIDTH, hang * CELL_HIGHT  # kích thước màn hình
+        self.size = self.weight, self.height = cot * \
+                                               CELL_WIDTH, hang * CELL_HIGHT  # kích thước màn hình
         self.dk = dk
         self.hang = hang
         self.cot = cot
@@ -164,16 +276,18 @@ class App:
         self.win = False
         self.who = None
         m = []
-        
+
         for i in range(hang):
-            m.append([None] * cot)
+            m.append(['_'] * cot)
         self.map = np.array(m)
         print(self.map)
 
     # khởi tạo game
+
     def on_init(self):
         pg.init()
-        self._screen = pg.display.set_mode(self.size, pg.HWSURFACE | pg.DOUBLEBUF)
+        self._screen = pg.display.set_mode(
+            self.size, pg.HWSURFACE | pg.DOUBLEBUF)
         self._running = True
         # tên cửa sổ
         pg.display.set_caption("Cờ caro với AI")
@@ -191,20 +305,19 @@ class App:
 
                 # get column of mouse click (1-3)
                 col = int(x / CELL_WIDTH)
-            
 
                 # get row of mouse click (1-3)
                 row = int(y / CELL_HIGHT)
 
-                
-
                 posx = col * CELL_WIDTH + 1
                 posy = row * CELL_HIGHT + 1
                 # print("{} {}".format(col, row))
-                if self.luot == 1 and self.map[row, col] == None and self.win != True:
+                if self.luot == 1 and self.map[row, col] == '_' and self.win != True:
                     self._screen.blit(x_img, (posx, posy))
-                    self.map[row, col] = self.luot
-                    self.win = checkWin(self.map, self.dk, self.luot, row, col)
+
+                    self.map[row, col] = 'x'
+
+                    self.win = checkWin(self.map, self.dk, self.luot)
                     if self.win:
                         self._screen.blit(x_win, (0, 0))
                         self.who = "x"
@@ -212,16 +325,20 @@ class App:
                     self.luot = 0
                 # if self.luot == 0 and self.map[row, col] == None:
                 if self.luot == 0 and self.win != True:
-                    while True:
-                        row = rd.randint(0, self.hang - 1)
-                        cot = rd.randint(0, self.cot - 1)
-                        if self.map[row, col] == None:
-                            break
+
+                    # while True:
+                    #     col = rd.randint(0, 20 - 1)
+                    #     row = rd.randint(0, 20 - 1)
+                    #     if self.map[row, col] == '_':
+                    #         break
+                    nd = tinhDiem(self.map, 1)
+                    col = nd[1]
+                    row = nd[0]
                     posx = col * CELL_WIDTH + 1
                     posy = row * CELL_HIGHT + 1
                     self._screen.blit(o_img, (posx, posy))
-                    self.map[row, col] = self.luot
-                    self.win = checkWin(self.map, self.dk, self.luot, row, col)
+                    self.map[row, col] = 'o'
+                    self.win = checkWin(self.map, self.dk, self.luot)
                     if self.win:
                         self._screen.blit(o_win, (0, 0))
                         self.who = "o"
@@ -240,7 +357,7 @@ class App:
 
     # lặp màn hình
     def on_loop(self):
-        
+
         pass
 
     # kết xuất
@@ -258,7 +375,8 @@ class App:
         if self.on_init() == False:
             self._running = False
         # chạy
-        game_initiating_window(self._screen, self.weight, self.height, self.cot, self.hang)
+        game_initiating_window(self._screen, self.weight,
+                               self.height, self.cot, self.hang)
         while (self._running):
             # get sự kiện
             for event in pg.event.get():
@@ -274,20 +392,21 @@ class App:
 
 def main():
     while True:
-        root = start()
-        set_str = json.loads(root.getvar("setting"))
-        setting = Setting(int(set_str["hang"]), int(set_str["cot"]), int(set_str["dk"]))
+        # root = start()
+        # set_str = json.loads(root.getvar("setting"))
+        # setting = Setting(int(set_str["hang"]), int(set_str["cot"]))
 
         # dkk = setting.dk
-        theApp = App(setting.hang, setting.cot, setting.dk)
+        theApp = App(20, 20, 5)
         who = theApp.on_execute()
-        
+
         from windows.Window2 import end
         # data["who"] = who
         r2 = end(who)
         choi_lai = r2.getvar("choi_lai")
         if choi_lai != "y":
             break
+
 
 if __name__ == "__main__":
     main()
