@@ -1,35 +1,28 @@
-# A simple Python3 program to find
-# maximum score that
-# maximizing player can get
-import math
 
-def minimax (curDepth, nodeIndex,
-			maxTurn, scores,
-			targetDepth):
+import itertools
+import pandas as pd
 
-	# base case : targetDepth reached
-	if (curDepth == targetDepth):
-		return scores[nodeIndex]
-	
-	if (maxTurn):
-		return max(minimax(curDepth + 1, nodeIndex * 2,
-					False, scores, targetDepth),
-				minimax(curDepth + 1, nodeIndex * 2 + 1,
-					False, scores, targetDepth))
-	
-	else:
-		return min(minimax(curDepth + 1, nodeIndex * 2,
-					True, scores, targetDepth),
-				minimax(curDepth + 1, nodeIndex * 2 + 1,
-					True, scores, targetDepth))
-	
-# Driver code
-scores = [3, 5, 2, 9, 12, 5, 23, 23]
+def coSo(x) -> str:
+    s = ""
+    for _ in range(5):
+        r = int(x % 3)
+        s = "".join((str(r), s))
+        x = int(x / 3)
+    return s
 
-treeDepth = math.log(len(scores), 2)
-print(treeDepth)
-print("The optimal value is : ", end = "")
-print(minimax(0, 0, True, scores, treeDepth))
+if __name__ == "__main__":
+    l = []
+    # f = open("diem.txt", "a")
+    for i in range(0, 243):
+        s = coSo(i)
+        s = s.replace("0", "_")
+        s = s.replace("1", "x")
+        s = s.replace("2", "o")
+        l.append(s)
+        print("{} {}".format(i, s))
+    df = pd.DataFrame()
+    df["td"] = l
+    df.to_excel("diem.xlsx", sheet_name="S1")
+    # f.writelines(l)
+    # print(l)
 
-# This code is contributed
-# by rootshadow

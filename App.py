@@ -8,6 +8,7 @@ from pygame.locals import *
 from models.Setting import Setting
 from windows.Window1 import start
 from minimax import minimax
+import pandas as pd
 
 import numpy as np
 
@@ -168,32 +169,45 @@ def maximum(a, b):
 td = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]
 strdk = {
     "xxxx_": 100,
-    "xxx__": 95,
-    "_xxx_": 95,
-    "__xxx": 90,
+    "xxx__": 99,
+    "_xxx_": 98,
+    "__xxx": 97,
     "xxxxo": 100,
     "xxxo_": 90,
-    "xx___": 60,
-    "_xx__": 60,
-    "__xx_": 60,
-    "__xxo": 50,
-    "_xxo_": 50,
-    "xxo__": 50,
+    "xx___": 10,
+    "oo___": 10,
+    "_xx__": 9,
+    "_oo__": 9,
+    "__xx_": 8,
+    "__xxo": 5,
+    "_xxo_": 6,
+    "xxo__": 7,
 
+
+
+    "ooo__":99,
+    "_ooo_":98,
+    "__ooo":97,
+    "oooox":100,
+    "oooo_":100,
+
+
+
+
+    "": 0,
     "_": 0,
     "__": 0,
     "___": 0,
     "____": 0,
     "_____": 0,
-    "x____": 10,
-    "_x___": 10,
-    "__x__": 10,
-    "___x_": 10,
-    "____x": 10,
+    "x____": 1,
+    "_x___": 1,
+    "__x__": 1,
+    "___x_": 1,
+    "____x": 1,
 }
-strdk1 = {
-    "xxx": 9,
-}
+df = pd.read_excel("TinhDiem.xlsx", sheet_name="Sheet1")
+strdk1 = dict()
 
 
 def tinhDiem(map1, luot):
@@ -232,21 +246,21 @@ def tinhDiem(map1, luot):
                             break
                     # if "xxx" not in strdk1.keys():
                     # ss = ss.replace("_", " ").strip()
-                    if ss in strdk.keys():
-                        mm[i, j] += strdk[ss]
+                    if ss in strdk1.keys():
+                        mm[i, j] += strdk1[ss]
 
 
 
     mx = 0
     ind = []
 
-    for i in range(20):
-        for j in range(20):
-            if mm[i, j] == "x":
-                mm[i, j] = "0"
-            if mm[i, j] == "o":
-                mm[i, j] = "0"
-            # mm[i, j] = "0"
+    # for i in range(20):
+    #     for j in range(20):
+    #         if mm[i, j] == "x":
+    #             mm[i, j] = "0"
+    #         if mm[i, j] == "o":
+    #             mm[i, j] = "0"
+    #         # mm[i, j] = "0"
 
     for i in range(20):
         for j in range(20):
@@ -409,4 +423,6 @@ def main():
 
 
 if __name__ == "__main__":
+    for i in range(len(df["nd"])):
+        strdk1[df["nd"][i]] = df["d"][i]
     main()
