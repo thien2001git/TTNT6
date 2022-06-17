@@ -208,6 +208,7 @@ strdk = {
 }
 df = pd.read_excel("TinhDiem.xlsx", sheet_name="Sheet1")
 strdk1 = dict()
+strdklog = dict()
 
 
 def tinhDiem(map1, luot):
@@ -230,9 +231,7 @@ def tinhDiem(map1, luot):
                 mm[i, j] = -1
             if map1[i, j] == op:
                 mm[i, j] = -2
-
             if map1[i, j] == "_":
-
                 for p in td:
                     u = i
                     v = j
@@ -251,8 +250,7 @@ def tinhDiem(map1, luot):
 
 
 
-    mx = 0
-    ind = []
+
 
     # for i in range(20):
     #     for j in range(20):
@@ -261,7 +259,8 @@ def tinhDiem(map1, luot):
     #         if mm[i, j] == "o":
     #             mm[i, j] = "0"
     #         # mm[i, j] = "0"
-
+    mx = 0
+    ind = []
     for i in range(20):
         for j in range(20):
             if mx < mm[i, j]:
@@ -425,4 +424,8 @@ def main():
 if __name__ == "__main__":
     for i in range(len(df["nd"])):
         strdk1[df["nd"][i]] = df["d"][i]
+    strdklog = dict(strdk1)
+
+    # print(strdk1)
+
     main()
